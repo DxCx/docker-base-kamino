@@ -1,10 +1,19 @@
 #!/bin/sh
 set -e
-source functions.sh
+
+# Get current script dir
+# Absolute path to this script, e.g. /home/user/bin/foo.sh
+SCRIPT=$(readlink -f "$0")
+# Absolute path this script is in, thus /home/user/bin
+export KAMINO_DIR=$(dirname "$SCRIPT")
+
+# General configuration
+source ${KAMINO_DIR}/functions.sh
 export KAMINO_WORKDIR=/tmp/kamino
 export KAMINO_ENVFILE=${KAMINO_WORKDIR}/env.list
 export KAMINO_DEBUG=false
 
+# option parsing
 while getopts ":hdi:" opt; do
 	case $opt in
 		h)
