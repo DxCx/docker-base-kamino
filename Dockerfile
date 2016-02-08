@@ -17,6 +17,8 @@ WORKDIR /kamino/
 COPY docker-compose.yml ./
 COPY bootstrap.sh ./
 RUN chmod +x ./bootstrap.sh && sync
+COPY functions.sh ./
+RUN chmod +x ./functions.sh && sync
 
 ENTRYPOINT ["/kamino/bootstrap.sh"]
 CMD ["-h"]

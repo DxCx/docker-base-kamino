@@ -1,15 +1,22 @@
 #!/bin/sh
 set -e
-
+source functions.sh
 export KAMINO_WORKDIR=/tmp/kamino
 export KAMINO_ENVFILE=${KAMINO_WORKDIR}/env.list
+export KAMINO_DEBUG=false
 
-# TODO: optparse
-while getopts ":hi:" opt; do
+while getopts ":hdi:" opt; do
 	case $opt in
 		h)
-			echo "Usage: kamino -i <input dir>" >&2
+			echo "Usage: kamino [-d] -i <input dir>" >&2
+			echo "Flags:"
+			echo " -i -> input directory"
+			echo " -d -> debug mode. print env vars"
 			exit 1
+			;;
+		d)
+			echo ">> debug mode enabled"
+			export KAMINO_DEBUG=true
 			;;
 		i)
 			echo ">> input dir is $OPTARG" >&2
@@ -34,10 +41,12 @@ mkdir -p ${KAMINO_WORKDIR}
 cd ${KAMINO_WORKDIR}
 
 # Create env file
-echo COMPOSE_PROJECT_NAME=$(basename "${INPUT_DIR}") > ${KAMINO_ENVFILE}
-echo PUSER=${PUSER} >> ${KAMINO_ENVFILE}
-echo PUID=${PUID} >> ${KAMINO_ENVFILE}
-echo PGID=${PGID} >> ${KAMINO_ENVFILE}
+kamino_clean_env
+COMPOSE_PROJECT_NAME=$(basename "${INPUT_DIR}")
+kamino_env_add COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}
+kamino_env_add PUSER=${PUSER}
+kamino_env_add PUID=${PUID}
+kamino_env_add PGID=${PGID}
 
 # Handle docker-compose yml file.
 cp /kamino/docker-compose.yml .
@@ -48,8 +57,14 @@ cd ${INPUT_DIR}
 source ${INPUT_DIR}/bootstrap.sh
 cd ${KAMINO_WORKDIR}
 
+if [[ ${KAMINO_DEBUG} = true ]]; then
+	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
+	cat ${KAMINO_ENVFILE}
+	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
+fi
+
 # pull all images
-# TODO, fix grep "image:" docker-compose.yml| cut -d ' ' -f6 | xargs -L1 docker pull
+# TODO: fix grep "image:" docker-compose.yml| cut -d ' ' -f6 | xargs -L1 docker pull
 docker pull dduportal/docker-compose:latest 
 
 # Run docker-compose
