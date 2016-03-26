@@ -14,22 +14,17 @@ export KAMINO_ENVFILE=${KAMINO_WORKDIR}/env.list
 export KAMINO_DEBUG=false
 
 # option parsing
-while getopts ":hdi:" opt; do
+while getopts ":hd:" opt; do
 	case $opt in
 		h)
-			echo "Usage: kamino [-d] -i <input dir>" >&2
+			echo "Usage: kamino [-d]" >&2
 			echo "Flags:"
-			echo " -i -> input directory"
 			echo " -d -> debug mode. print env vars"
 			exit 1
 			;;
 		d)
 			echo ">> debug mode enabled"
 			export KAMINO_DEBUG=true
-			;;
-		i)
-			echo ">> input dir is $OPTARG" >&2
-			INPUT_DIR=$OPTARG
 			;;
 		\?)
 			echo "Invalid option: -$OPTARG" >&2
@@ -42,8 +37,11 @@ while getopts ":hdi:" opt; do
 	esac
 done
 
-# Run docker daemon
-dockerd-entrypoint.sh & #2>&1 > /dev/null
+if [[ -z "${KAMINO_INPUT_DIR}" ]]; then
+	echo "KAMINO_INPUT_DIR enviorment is missing."
+	exit 1
+fi
+INPUT_DIR=${KAMINO_INPUT_DIR}
 
 # Prepare workdir
 mkdir -p ${KAMINO_WORKDIR}
@@ -72,14 +70,25 @@ if [[ ${KAMINO_DEBUG} = true ]]; then
 	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
 fi
 
-# pull all images
-# TODO: fix grep "image:" docker-compose.yml| cut -d ' ' -f6 | xargs -L1 docker pull
-docker pull dduportal/docker-compose:latest 
+# Run docker daemon
+kamino_dind
 
-# Run docker-compose
+# prepare docker compose
+docker pull dduportal/docker-compose:latest 
+cat > /usr/local/bin/docker-compose << EOF
+#!/bin/sh
 exec /usr/local/bin/docker run \
 	-v /var/run/docker.sock:/var/run/docker.sock \
+	-v /var/lib/docker:/var/lib/docker \
 	-v "${KAMINO_WORKDIR}":"${KAMINO_WORKDIR}" --workdir="${KAMINO_WORKDIR}" \
 	--env-file ./env.list \
 	-ti --rm \
-	dduportal/docker-compose:latest up
+	dduportal/docker-compose:latest \$@
+EOF
+chmod +x /usr/local/bin/docker-compose
+
+# pull all images
+docker-compose pull
+
+# Run docker-compose
+exec /usr/local/bin/docker-compose up

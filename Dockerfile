@@ -1,8 +1,10 @@
 FROM docker:dind
 
-VOLUME /tmp/
+VOLUME ["/tmp/"]
+VOLUME ["/var/lib/docker/"]
 
 # Decleraing env vars
+#ENV KAMINO_INPUT_DIR
 ENV PUSER nobody
 ENV PUID 65534
 ENV PGID 65535
@@ -21,4 +23,4 @@ COPY functions.sh ./
 RUN chmod +x ./functions.sh && sync
 
 ENTRYPOINT ["/kamino/bootstrap.sh"]
-CMD ["-h"]
+CMD []
