@@ -59,30 +59,13 @@ cd ${INPUT_DIR}
 source ${INPUT_DIR}/bootstrap.sh
 cd ${KAMINO_WORKDIR}
 
-kamino_reset_env
-if [[ ${KAMINO_DEBUG} = true ]]; then
-	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
-	cat ${KAMINO_ENVFILE}
-	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
-fi
 ################# Start the actual work ##################
 
 # Run docker daemon
 kamino_dind
 
 # prepare docker compose
-docker pull dduportal/docker-compose:latest 
-cat > /usr/local/bin/docker-compose << EOF
-#!/bin/sh
-exec /usr/local/bin/docker run \
-	-v /var/run/docker.sock:/var/run/docker.sock \
-	-v /var/lib/docker:/var/lib/docker \
-	-v "${KAMINO_WORKDIR}":"${KAMINO_WORKDIR}" --workdir="${KAMINO_WORKDIR}" \
-	--env-file ${KAMINO_ENVFILE} \
-	-ti --rm \
-	dduportal/docker-compose:latest \$@
-EOF
-chmod +x /usr/local/bin/docker-compose
+kamino_prepare_compose
 
 # pull all images
 docker-compose pull
