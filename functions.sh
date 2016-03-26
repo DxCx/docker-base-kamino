@@ -20,11 +20,13 @@ kamino_dind() {
 	printf "\nDocker is ready.\n"
 }
 
-kamino_clean_env() {
+kamino_reset_env() {
 	truncate -s 0 ${KAMINO_ENVFILE}
+	printenv > ${KAMINO_ENVFILE}
 }
 
-kamino_env_add() {
-	export $1
-	echo $1 >> ${KAMINO_ENVFILE}
-}
+# TODO: Think about it.
+#kamino_env_add() {
+#	export $1
+#	echo $1 >> ${KAMINO_ENVFILE}
+#}

@@ -14,7 +14,7 @@ export KAMINO_ENVFILE=${KAMINO_WORKDIR}/env.list
 export KAMINO_DEBUG=false
 
 # option parsing
-while getopts ":hd:" opt; do
+while getopts ":hd" opt; do
 	case $opt in
 		h)
 			echo "Usage: kamino [-d]" >&2
@@ -48,12 +48,7 @@ mkdir -p ${KAMINO_WORKDIR}
 cd ${KAMINO_WORKDIR}
 
 # Create env file
-kamino_clean_env
 COMPOSE_PROJECT_NAME=$(basename "${INPUT_DIR}")
-kamino_env_add COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}
-kamino_env_add PUSER=${PUSER}
-kamino_env_add PUID=${PUID}
-kamino_env_add PGID=${PGID}
 
 # Handle docker-compose yml file.
 cp /kamino/docker-compose.yml .
@@ -64,11 +59,13 @@ cd ${INPUT_DIR}
 source ${INPUT_DIR}/bootstrap.sh
 cd ${KAMINO_WORKDIR}
 
+kamino_reset_env
 if [[ ${KAMINO_DEBUG} = true ]]; then
 	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
 	cat ${KAMINO_ENVFILE}
 	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
 fi
+################# Start the actual work ##################
 
 # Run docker daemon
 kamino_dind
@@ -81,7 +78,7 @@ exec /usr/local/bin/docker run \
 	-v /var/run/docker.sock:/var/run/docker.sock \
 	-v /var/lib/docker:/var/lib/docker \
 	-v "${KAMINO_WORKDIR}":"${KAMINO_WORKDIR}" --workdir="${KAMINO_WORKDIR}" \
-	--env-file ./env.list \
+	--env-file ${KAMINO_ENVFILE} \
 	-ti --rm \
 	dduportal/docker-compose:latest \$@
 EOF
