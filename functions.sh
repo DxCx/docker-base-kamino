@@ -36,7 +36,7 @@ exec /usr/local/bin/docker run \
 	-v /var/lib/docker:/var/lib/docker \
 	-v "${KAMINO_WORKDIR}":"${KAMINO_WORKDIR}" --workdir="${KAMINO_WORKDIR}" \
 	--env-file ${KAMINO_ENVFILE} \
-	-ti --rm \
+	-i --rm \
 	dduportal/docker-compose:latest \$@
 EOF
 	chmod +x /usr/local/bin/docker-compose
