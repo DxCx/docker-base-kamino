@@ -70,5 +70,12 @@ kamino_prepare_compose
 # pull all images
 docker-compose pull
 
+# Dump enviorment if debug flag exists
+if [[ ${KAMINO_DEBUG} = true ]]; then
+	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
+	cat ${KAMINO_ENVFILE}
+	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
+fi
+
 # Run docker-compose
 exec /usr/local/bin/docker-compose up

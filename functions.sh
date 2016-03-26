@@ -25,12 +25,6 @@ kamino_prepare_compose() {
 	cat > /usr/local/bin/docker-compose << EOF
 #!/bin/sh
 printenv > ${KAMINO_ENVFILE}
-if [[ ${KAMINO_DEBUG} = true ]]; then
-	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
-	cat ${KAMINO_ENVFILE}
-	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
-fi
-
 exec /usr/local/bin/docker run \
 	-v /var/run/docker.sock:/var/run/docker.sock \
 	-v /var/lib/docker:/var/lib/docker \

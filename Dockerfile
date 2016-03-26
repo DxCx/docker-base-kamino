@@ -1,6 +1,5 @@
 FROM docker:dind
 
-VOLUME ["/tmp/"]
 VOLUME ["/var/lib/docker/"]
 
 # Decleraing env vars
