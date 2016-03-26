@@ -8,7 +8,8 @@ ENV PUSER nobody
 ENV PUID 65534
 ENV PGID 65535
 
-# Setting my workdir
+# Setting my temp & workdir
+RUN mkdir -p /tmp/
 RUN mkdir -p /kamino/
 WORKDIR /kamino/
 
