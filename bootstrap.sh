@@ -60,6 +60,12 @@ cd ${INPUT_DIR}
 source ${INPUT_DIR}/bootstrap.sh
 cd ${KAMINO_WORKDIR}
 
+
+COMPOSE_DBG_FLAGS=
+if [[ ${KAMINO_DEBUG} = true ]]; then
+	COMPOSE_DBG_FLAGS=--verbose
+fi
+
 ################# Start the actual work ##################
 
 # Run docker daemon
@@ -69,7 +75,7 @@ kamino_dind
 kamino_prepare_compose
 
 # pull all images
-docker-compose pull
+docker-compose pull ${COMPOSE_DBG_FLAGS}
 
 # Dump enviorment if debug flag exists
 if [[ ${KAMINO_DEBUG} = true ]]; then
@@ -79,4 +85,4 @@ if [[ ${KAMINO_DEBUG} = true ]]; then
 fi
 
 # Run docker-compose
-exec /usr/local/bin/docker-compose up
+exec /usr/local/bin/docker-compose up ${COMPOSE_DBG_FLAGS}
