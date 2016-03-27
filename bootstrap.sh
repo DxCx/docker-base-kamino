@@ -12,6 +12,7 @@ source ${KAMINO_DIR}/functions.sh
 export KAMINO_WORKDIR=/tmp/kamino
 export KAMINO_ENVFILE=${KAMINO_WORKDIR}/env.list
 export KAMINO_DEBUG=false
+export KAMINO_DOCKER_NETWORK=`ip route | awk '!/ (docker0|br-)/ && /src/ {print $1}'`
 
 # option parsing
 while getopts ":hd" opt; do
