@@ -11,18 +11,12 @@ ENV PUID 65534
 ENV PGID 65535
 
 # Setting my temp & workdir
-RUN mkdir -p /tmp/
-RUN mkdir -p /kamino/
+RUN mkdir -p /tmp/ && mkdir -p /kamino
 WORKDIR /kamino/
 
-# TODO: Modify docker images path.
-
 # Copy needed files
-COPY docker-compose.yml ./
-COPY bootstrap.sh ./
-RUN chmod +x ./bootstrap.sh && sync
-COPY functions.sh ./
-RUN chmod +x ./functions.sh && sync
+COPY * ./
+RUN chmod +x ./bootstrap.sh && chmod +x ./functions.sh && sync
 
 ENTRYPOINT ["/kamino/bootstrap.sh"]
 CMD []
