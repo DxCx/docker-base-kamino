@@ -1,5 +1,7 @@
 FROM docker:dind
 
+# TODO: Why tmp has to be a volume
+VOLUME ["/tmp/"]
 VOLUME ["/var/lib/docker/"]
 
 # Decleraing env vars
@@ -9,7 +11,7 @@ ENV PUID 65534
 ENV PGID 65535
 
 # Setting my temp & workdir
-RUN mkdir -p /tmp/kamino
+RUN mkdir -p /tmp/
 RUN mkdir -p /kamino/
 WORKDIR /kamino/
 
