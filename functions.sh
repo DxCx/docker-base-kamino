@@ -9,7 +9,7 @@ kamino_dind() {
 	if [[ -f /var/run/docker.pid ]]; then
 		echo "Docker PID leftover was found"
 		kill -9 $(cat /var/run/docker.pid) > /dev/null 2>&1 || true
-		rm -f /var/run/docker.*
+		rm -vf /var/run/docker.*
 	fi
 	_kamino_bg_dind &
 	printf "Waiting for Docker : "

@@ -12,7 +12,6 @@ source ${KAMINO_DIR}/functions.sh
 export KAMINO_WORKDIR=/tmp/kamino
 export KAMINO_ENVFILE=${KAMINO_WORKDIR}/env.list
 export KAMINO_DEBUG=false
-export KAMINO_DOCKER_NETWORK=`ip route | awk '!/ (docker0|br-)/ && /src/ {print $1}'`
 
 # option parsing
 while getopts ":hd" opt; do
@@ -65,6 +64,9 @@ cd ${KAMINO_WORKDIR}
 # Run docker daemon
 kamino_dind
 
+# After docker is up, setup Kamino docker network
+export KAMINO_DOCKER_NETWORK=`ip route | awk '!/ (docker0|br-)/ && /src/ {print $1}'`
+
 # prepare docker compose
 kamino_prepare_compose
 
@@ -76,6 +78,7 @@ if [[ ${KAMINO_DEBUG} = true ]]; then
 	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
 	cat ${KAMINO_ENVFILE}
 	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
+	ip route
 fi
 
 # Run docker-compose
