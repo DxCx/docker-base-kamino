@@ -62,9 +62,9 @@ cd ${KAMINO_WORKDIR}
 
 
 COMPOSE_DBG_FLAGS=
-if [[ ${KAMINO_DEBUG} = true ]]; then
-	COMPOSE_DBG_FLAGS=--verbose
-fi
+#if [[ ${KAMINO_DEBUG} = true ]]; then
+#	COMPOSE_DBG_FLAGS=--verbose
+#fi
 
 ################# Start the actual work ##################
 

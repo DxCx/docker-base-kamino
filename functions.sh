@@ -24,6 +24,7 @@ kamino_prepare_compose() {
 	docker pull dduportal/docker-compose:latest
 	cat > /usr/local/bin/docker-compose << EOF
 #!/bin/sh
+echo "Running docker-compose \$@..."
 printenv > ${KAMINO_ENVFILE}
 exec /usr/local/bin/docker run \
 	-v /var/run/docker.sock:/var/run/docker.sock \
