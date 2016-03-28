@@ -54,11 +54,6 @@ COMPOSE_PROJECT_NAME=$(basename "${INPUT_DIR}")
 cp /kamino/docker-compose.yml .
 cat ${INPUT_DIR}/docker-compose.yml >> ./docker-compose.yml
 
-# Run inner bootstrap
-cd ${INPUT_DIR}
-source ${INPUT_DIR}/bootstrap.sh
-cd ${KAMINO_WORKDIR}
-
 ################# Start the actual work ##################
 
 # Run docker daemon
@@ -66,6 +61,11 @@ kamino_dind
 
 # After docker is up, setup Kamino docker network
 export KAMINO_DOCKER_NETWORK=`ip route | awk '!/ (docker0|br-)/ && /src/ { printf "%s ", $1 }'`
+
+# Run inner bootstrap
+cd ${INPUT_DIR}
+source ${INPUT_DIR}/bootstrap.sh
+cd ${KAMINO_WORKDIR}
 
 # prepare docker compose
 kamino_prepare_compose
