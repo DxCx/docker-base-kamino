@@ -17,6 +17,8 @@ kamino_dind() {
 		printf "#"
 		sleep 1
 	done
+	docker stop $(docker ps -a -q) > /dev/null 2>&1 || true
+	docker rm -vf $(docker ps -a -q) > /dev/null 2>&1 || true
 	printf "\nDocker is ready.\n"
 }
 
@@ -25,7 +27,7 @@ kamino_prepare_compose() {
 	cat > /usr/local/bin/docker-compose << EOF
 #!/bin/sh
 echo "Running docker-compose \$@..."
-printenv > ${KAMINO_ENVFILE}
+printenv | grep -v "^DOCKER_" > ${KAMINO_ENVFILE}
 exec /usr/local/bin/docker run \
 	-v /var/run/docker.sock:/var/run/docker.sock \
 	-v /var/lib/docker:/var/lib/docker \

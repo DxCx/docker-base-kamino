@@ -62,19 +62,22 @@ kamino_dind
 # After docker is up, setup Kamino docker network
 export KAMINO_DOCKER_NETWORK=`ip route | awk '!/ (docker0|br-)/ && /src/ { printf "%s ", $1 }'`
 
+# prepare docker compose
+kamino_prepare_compose
+
 # Run inner bootstrap
 cd ${INPUT_DIR}
 source ${INPUT_DIR}/bootstrap.sh
 cd ${KAMINO_WORKDIR}
-
-# prepare docker compose
-kamino_prepare_compose
 
 # pull all images
 docker-compose pull
 
 # Dump enviorment if debug flag exists
 if [[ ${KAMINO_DEBUG} = true ]]; then
+    docker version
+    docker info
+    uname -a
 	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
 	cat ${KAMINO_ENVFILE}
 	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
