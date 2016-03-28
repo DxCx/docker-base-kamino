@@ -78,7 +78,6 @@ if [[ ${KAMINO_DEBUG} = true ]]; then
 	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
 	cat ${KAMINO_ENVFILE}
 	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
-	ip route
 fi
 
 # Run docker-compose
