@@ -65,7 +65,7 @@ cd ${KAMINO_WORKDIR}
 kamino_dind
 
 # After docker is up, setup Kamino docker network
-export KAMINO_DOCKER_NETWORK=`ip route | awk '!/ (docker0|br-)/ && /src/ {print $1}'`
+export KAMINO_DOCKER_NETWORK=`ip route | awk '!/ (docker0|br-)/ && /src/ {print $1}' | sed '$s/ $/\n/'`
 
 # prepare docker compose
 kamino_prepare_compose
