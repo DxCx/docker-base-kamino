@@ -79,7 +79,7 @@ if [[ ${KAMINO_DEBUG} = true ]]; then
     docker info
     uname -a
 	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
-	cat ${KAMINO_ENVFILE}
+	cat ${KAMINO_ENVFILE} | sort
 	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
 fi
 
