@@ -1,6 +1,7 @@
 FROM docker:dind
 
 # TODO: Why tmp has to be a volume
+VOLUME ["/tmp/"]
 VOLUME ["/var/lib/docker/"]
 
 # Decleraing env vars
