@@ -9,8 +9,7 @@ export KAMINO_DIR=$(dirname "$SCRIPT")
 
 # General configuration
 source ${KAMINO_DIR}/functions.sh
-export KAMINO_WORKDIR=/tmp/kamino
-export KAMINO_ENVFILE=${KAMINO_WORKDIR}/env.list
+export KAMINO_WORKDIR=/var/run/kamino
 export KAMINO_DEBUG=false
 
 # option parsing
@@ -36,6 +35,9 @@ while getopts ":hd" opt; do
 			;;
 	esac
 done
+if [[ ${KAMINO_DEBUG} = true ]]; then
+	set -x
+fi
 
 if [[ -z "${KAMINO_INPUT_DIR}" ]]; then
 	echo "KAMINO_INPUT_DIR enviorment is missing."
@@ -56,32 +58,29 @@ cat ${INPUT_DIR}/docker-compose.yml >> ./docker-compose.yml
 
 ################# Start the actual work ##################
 
+# Register cleanup
+trap _kamino_cleanup EXIT INT TERM KILL
+
 # Run docker daemon
 kamino_dind
 
 # After docker is up, setup Kamino docker network
 export KAMINO_DOCKER_NETWORK=`ip route | awk '!/ (docker0|br-)/ && /src/ { printf "%s ", $1 }'`
 
-# prepare docker compose
-kamino_prepare_compose
-
 # Run inner bootstrap
 cd ${INPUT_DIR}
 source ${INPUT_DIR}/bootstrap.sh
 cd ${KAMINO_WORKDIR}
 
-# pull all images
-docker-compose pull
+## pull all images
+docker-compose pull &
+wait $!
 
 # Dump enviorment if debug flag exists
 if [[ ${KAMINO_DEBUG} = true ]]; then
     docker version
     docker info
     uname -a
-	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
-	cat ${KAMINO_ENVFILE} | sort
-	echo ">>>>>> DEBUG: KAMINO_ENVFILE <<<<<<"
 fi
 
-# Run docker-compose
-exec /usr/local/bin/docker-compose up
+kamino_start

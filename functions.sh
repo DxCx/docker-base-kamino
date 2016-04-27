@@ -1,7 +1,32 @@
-#!/bin/bash
+#!/bin/sh
+
+# Globals
+kamino_docker_pid=
+kamino_compose_up=false
+
+_kamino_cleanup() {
+	set +e
+	trap '' EXIT INT TERM
+	
+	echo "Kamino Cleans-up... (PID=${kamino_docker_pid})"
+
+	if [[ ${kamino_compose_up} == true ]]; then
+		#docker-compose down
+		kamino_compose_up=false
+	fi
+
+	if [[ ! -z ${kamino_docker_pid} ]]; then
+		docker stop $(docker ps -a -q) > /dev/null 2>&1 || true
+		echo "Stopping Docker PID=${kamino_docker_pid}"
+		kill ${kamino_docker_pid}
+		wait ${kamino_docker_pid}
+		rm -vf /var/run/docker.*
+		kamino_docker_pid=
+	fi
+}
 
 _kamino_bg_dind() {
-	. dockerd-entrypoint.sh
+	nohup /usr/local/bin/dockerd-entrypoint.sh & > /dev/null
 }
 
 kamino_dind() {
@@ -11,30 +36,24 @@ kamino_dind() {
 		kill -9 $(cat /var/run/docker.pid) > /dev/null 2>&1 || true
 		rm -vf /var/run/docker.*
 	fi
-	_kamino_bg_dind &
+
+	# Run docker DIND
+	_kamino_bg_dind
 	printf "Waiting for Docker : "
 	while [[ ! -e /var/run/docker.sock ]]; do
 		printf "#"
 		sleep 1
 	done
-	docker stop $(docker ps -a -q) > /dev/null 2>&1 || true
-	docker rm -vf $(docker ps -a -q) > /dev/null 2>&1 || true
-	printf "\nDocker is ready.\n"
+
+	# Update docker pid
+	kamino_docker_pid=$(cat /var/run/docker.pid)
+	printf "\nDocker is ready. PID=${kamino_docker_pid}\n"
 }
 
-kamino_prepare_compose() {
-	docker pull dduportal/docker-compose:latest
-	cat > /usr/local/bin/docker-compose << EOF
-#!/bin/sh
-echo "Running docker-compose \$@..."
-printenv | grep -v "^DOCKER_" > ${KAMINO_ENVFILE}
-exec /usr/local/bin/docker run \
-	-v /var/run/docker.sock:/var/run/docker.sock \
-	-v /var/lib/docker:/var/lib/docker \
-	-v "${KAMINO_WORKDIR}":"${KAMINO_WORKDIR}" --workdir="${KAMINO_WORKDIR}" \
-	--env-file ${KAMINO_ENVFILE} \
-	-i --rm \
-	dduportal/docker-compose:latest \$@
-EOF
-	chmod +x /usr/local/bin/docker-compose
+kamino_start() {
+	# Run docker-compose
+	nohup docker-compose up -d > /dev/null
+	kamino_compose_up=true
+	docker-compose logs -f &
+	wait $!
 }

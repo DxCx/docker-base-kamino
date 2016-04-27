@@ -1,6 +1,6 @@
 FROM docker:dind
 
-# TODO: Why tmp has to be a volume
+# volumes for docker to run properly
 VOLUME ["/tmp/"]
 VOLUME ["/var/lib/docker/"]
 
@@ -9,6 +9,13 @@ VOLUME ["/var/lib/docker/"]
 ENV PUSER nobody
 ENV PUID 65534
 ENV PGID 65535
+
+# install python + Docker compose
+RUN set -e \
+	&& apk add --no-cache \
+    py-pip \
+    && pip install --upgrade pip \
+    && pip install docker-compose
 
 # Setting my temp & workdir
 RUN mkdir -p /tmp/ && mkdir -p /kamino
